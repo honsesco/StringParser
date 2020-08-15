@@ -51,10 +51,13 @@ result = parser.parse("Where is the money {name}?"); // Where is the money Lebow
 ```
 - {players} player{IF(EQ(players, 1), '', 's')}      // players = 1
 1 player
+
 - You were slain by {IF(isname, name, CONCAT(IF(STARTSWITH(name, 'a', 'e', 'i', 'o', 'u'), 'an', 'a'), ' ', name))}   // name = Creeper, isname = false
 You were slain by a Creeper
+
 - 2 + 2 = {ADD(2, 2)}
 4
+
 - {IF(TRUE(), 'Always true', 'I think I forgot something')}
 Always true
 ```

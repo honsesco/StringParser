@@ -1,4 +1,4 @@
-package me.honsesco.checker;
+package me.honsesco.parser;
 
 public class StringParser {
 

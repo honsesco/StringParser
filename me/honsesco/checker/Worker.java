@@ -48,7 +48,6 @@ public class Worker {
                 String codeContent = getCodeContent(code);
                 String parsedCode = parseFunction(codeContent);
                 if (parsedCode.equals("error")) return "error";
-
                 if (codeContent.equals(parsedCode)) {
                     result.append(code);
                 } else {
@@ -301,7 +300,9 @@ public class Worker {
             start = comma + 1;
             list.add(body.trim());
         }
-        list.add(input.substring(start).trim());
+        String lastElement = getFunctionBody(input, start);
+        if (lastElement.equals("error")) return new ArrayList<>();
+        list.add(lastElement);
         return list;
     }
 

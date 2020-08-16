@@ -5,7 +5,8 @@ import java.util.*;
 public class Worker {
 
     private final List<String> functions = Arrays.asList("EQ", "LTEQ", "LT", "GT", "GTEQ", "IF", "CONCAT",
-            "ADD", "AND", "NOT", "OR", "ENDSWITH", "STARTSWITH", "NE", "TRUE", "FALSE");
+            "ADD", "AND", "NOT", "OR", "ENDSWITH", "STARTSWITH", "NE", "TRUE", "FALSE", "DIV", "JOIN", "MUL",
+            "MOD", "SUB");
     private final Map<String, String> values = new HashMap<>();
 
     public boolean isValue(String value) {
@@ -186,6 +187,43 @@ public class Worker {
                     if (value.startsWith(parseFunction(list.get(i)))) return "true";
                 }
                 return "false";
+            } else if (name.equals("DIV")) {
+                List<String> list = parseSimpleList(getFunctionContent(input));
+                if (list.size() != 2) return "error";
+                String sValue1 = getIfExists(list.get(0));
+                String sValue2 = getIfExists(list.get(1));
+                if (!isInteger(sValue1) || !isInteger(sValue2)) return "error";
+                return String.valueOf(parseInt(sValue1) / parseInt(sValue2));
+            } else if (name.equals("JOIN")) {
+                List<String> list = parseComplexList(getFunctionContent(input));
+                if (list.size() < 2) return "error";
+                String value = parseFunction(list.get(0));
+                List<String> parsed = new ArrayList<>();
+                for (int i = 1; i < list.size(); i++) {
+                    parsed.add(parseFunction(list.get(i)));
+                }
+                return String.join(value, parsed);
+            } else if (name.equals("MUL")) {
+                List<String> list = parseSimpleList(getFunctionContent(input));
+                if (list.size() != 2) return "error";
+                String sValue1 = getIfExists(list.get(0));
+                String sValue2 = getIfExists(list.get(1));
+                if (!isInteger(sValue1) || !isInteger(sValue2)) return "error";
+                return String.valueOf(parseInt(sValue1) * parseInt(sValue2));
+            } else if (name.equals("MOD")) {
+                List<String> list = parseSimpleList(getFunctionContent(input));
+                if (list.size() != 2) return "error";
+                String sValue1 = getIfExists(list.get(0));
+                String sValue2 = getIfExists(list.get(1));
+                if (!isInteger(sValue1) || !isInteger(sValue2)) return "error";
+                return String.valueOf(parseInt(sValue1) % parseInt(sValue2));
+            } else if (name.equals("SUB")) {
+                List<String> list = parseSimpleList(getFunctionContent(input));
+                if (list.size() != 2) return "error";
+                String sValue1 = getIfExists(list.get(0));
+                String sValue2 = getIfExists(list.get(1));
+                if (!isInteger(sValue1) || !isInteger(sValue2)) return "error";
+                return String.valueOf(parseInt(sValue1) - parseInt(sValue2));
             } else if (name.equals("TRUE")) {
                 return "true";
             } else if (name.equals("FALSE")) {
@@ -260,7 +298,6 @@ public class Worker {
 
             current++;
         }
-
         return "error";
     }
 

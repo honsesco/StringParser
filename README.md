@@ -17,21 +17,27 @@ obj = Object (anything)
 
 
 - ADD(num, num) -> num   Adds the 2 numbers together
-- AND(bool...) -> bool   Returns True is all parameters are true, otherwise returns false.
+- AND(bool...) -> bool   Returns True is all parameters are true, otherwise returns false
 - CONCAT(obj...) -> str   Joins all the parameters together
 - ENDSWITH(obj, obj...) -> bool   Returns true, if the first parameter ends with any of the following parameters
 - EQ(obj, obj) -> bool   Returns true if the first and the second parameter match
 - GTEQ(num, num) -> bool   Returns true if the first parameter is greater than or equal to the second
 - GT(num, num) -> bool   Returns true if the first parameter is greater than the second
-- IF(bool, obj, obj) -> obj   If the first parameter is True, the second parameter is returned, if the first parameter is False, the third parameter is returned.
+- IF(bool, obj, obj) -> obj   If the first parameter is True, the second parameter is returned, if the first parameter is False, the third parameter is returned
 - LTEQ(num, num) -> bool   Returns true if the first parameter is less than or equal to the second
 - LT(num, num) -> bool   Returns true if the first parameter is less than the second
 - NE(obj, obj) -> bool   Returns true if the 2 objects are not equal
 - NOT(bool) -> bool   Returns the opposite boolean value
-- OR(bool...) -> bool   Returns True if 1 or more of the values is True.
+- OR(bool...) -> bool   Returns True if 1 or more of the values is True
 - STARTSWITH(obj, obj...) -> bool   Returns true if the first parameter starts with any of the following parameters
 - TRUE() -> bool   Returns true
 - FALSE() -> bool   Returns false
+- SUB(num, num) -> num   Returns the first value subtracted by the second value
+- DIV(num, num) -> num   Divides the first number by the second number
+- JOIN(obj, obj...) -> str   Joins all the objects from the second parameter forward, using the first parameter as a separator
+- MUL(num, num) -> num   Returns the result of the 2 numbers being multiplied together
+- MOD(num, num) -> num   Returns the first value modulus (remainder) the second value
+
 
 
 
@@ -60,4 +66,7 @@ You were slain by a Creeper
 
 - {IF(TRUE(), 'Always true', 'I think I forgot something')}
 Always true
+
+- {JOIN(', ', 'one', 'two', 'three', 'four')}
+one, two, three, four
 ```

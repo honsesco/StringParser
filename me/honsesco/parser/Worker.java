@@ -25,10 +25,6 @@ public class Worker {
         values.put(key, value);
     }
 
-    public String parse(String input) {
-        return parseCode(input);
-    }
-
     public void clearValues() {
         values.clear();
     }
@@ -37,18 +33,47 @@ public class Worker {
         values.remove(key);
     }
 
+    private String getIfExists(String key) {
+        return isValue(key) ? getValue(key) : key;
+    }
+
+    private boolean isBoolean(String str) {
+        return str.equals("true") || str.equals("false");
+    }
+
+    private boolean isInteger(String str) {
+        return str.matches("[-+]?\\d+");
+    }
+
+    private boolean isString(String str) {
+        int a = str.indexOf("'");
+        int b = str.lastIndexOf("'");
+        return a != -1 && b != -1 && a < b;
+    }
+
+    private String getStringContent(String str) {
+        int a = str.indexOf("'");
+        int b = str.lastIndexOf("'");
+        return a != -1 && b != -1 && a < b ? str.substring(a + 1, b) : str;
+    }
+
+    public String parse(String input) {
+        return parseCode(input);
+    }
+
     private String parseCode(String input) {
         if (hasCode(input)) {
             StringBuilder result = new StringBuilder();
             int current = input.indexOf("{");
-
             if (current > 0) result.append(input, 0, current);
+            
             while (hasCode(input, current)) {
                 String code = getFunctionBody(input, current);
                 if (code.equals("error")) return "error";
                 String codeContent = getCodeContent(code);
                 String parsedCode = parseFunction(codeContent);
                 if (parsedCode.equals("error")) return "error";
+
                 if (codeContent.equals(parsedCode)) {
                     result.append(code);
                 } else {
@@ -68,8 +93,27 @@ public class Worker {
         }
     }
 
-    private String getIfExists(String key) {
-        return isValue(key) ? getValue(key) : key;
+    private String getFunctionContent(String input) {
+        int a = input.indexOf("(");
+        int b = input.lastIndexOf(")");
+        return a == -1 || b == -1 ? input : input.substring(a + 1, b);
+    }
+
+    private String getCodeContent(String input) {
+        int a = input.indexOf("{");
+        int b = input.lastIndexOf("}");
+        return a == -1 || b == -1 ? input : input.substring(a + 1, b);
+    }
+
+    private String getFunctionName(String input) {
+        int a = input.indexOf("(");
+        return a == -1 ? "" : input.substring(0, a).trim();
+    }
+
+    private boolean isFunction(String function) {
+        int a = function.indexOf("(");
+        int b = function.indexOf(")");
+        return a != -1 && b != -1 && a < b && functions.contains(function.substring(0, a).trim());
     }
 
     private boolean hasCode(String input) {
@@ -172,7 +216,7 @@ public class Worker {
                 }
                 return "false";
             } else if (name.equals("ENDSWITH")) {
-                List<String> list = parseComplexList(getFunctionContent(input));
+                List<String> list = parseSimpleList(getFunctionContent(input));
                 if (list.size() <= 1) return "error";
                 String value = parseFunction(list.get(0));
                 for (int i = 1; i < list.size(); i++) {
@@ -180,7 +224,7 @@ public class Worker {
                 }
                 return "false";
             } else if (name.equals("STARTSWITH")) {
-                List<String> list = parseComplexList(getFunctionContent(input));
+                List<String> list = parseSimpleList(getFunctionContent(input));
                 if (list.size() <= 1) return "error";
                 String value = parseFunction(list.get(0));
                 for (int i = 1; i < list.size(); i++) {
@@ -238,26 +282,6 @@ public class Worker {
         }
     }
 
-    private boolean isBoolean(String str) {
-        return str.equals("true") || str.equals("false");
-    }
-
-    private boolean isInteger(String str) {
-        return str.matches("[-+]?\\d+");
-    }
-
-    private boolean isString(String str) {
-        int a = str.indexOf("'");
-        int b = str.lastIndexOf("'");
-        return a != -1 && b != -1 && a < b;
-    }
-
-    private String getStringContent(String str) {
-        int a = str.indexOf("'");
-        int b = str.lastIndexOf("'");
-        return a != -1 && b != -1 && a < b ? str.substring(a + 1, b) : str;
-    }
-
     private String getFunctionBody(String input, int start) {
         int a = 0;    // '
         int ba = 0;   // {
@@ -272,7 +296,7 @@ public class Worker {
 
             // for special chars
             if (symbol == '\\') {
-                if (current + 1 == input.length()) return "error"; //error
+                if (current + 1 == input.length()) return "error";
 
                 char specialChar = input.charAt(current + 1);
                 if (!isSpecialChar(specialChar)) current--;
@@ -298,6 +322,7 @@ public class Worker {
 
             current++;
         }
+        if (a >= 0 && ba >= 0 && ca >= 0 && a % 2 == 0 && ba == bb && ca == cb) return input.substring(start);
         return "error";
     }
 
@@ -305,21 +330,9 @@ public class Worker {
         return symbol == '\'' || symbol == '(' || symbol == ')' || symbol == '{' || symbol == '}';
     }
 
-    private String getFunctionName(String input) {
-        int a = input.indexOf("(");
-        return a == -1 ? "" : input.substring(0, a).trim();
-    }
-
-    private boolean isFunction(String function) {
-        int a = function.indexOf("(");
-        int b = function.indexOf(")");
-        return a != -1 && b != -1 && a < b && functions.contains(function.substring(0, a).trim());
-    }
-
     private List<String> parseSimpleList(String input) {
-        int start = 0;
         List<String> list = new ArrayList<>();
-        for (String s : input.substring(start).split(",")) {
+        for (String s : input.split(",")) {
             list.add(s.trim());
         }
         return list;
@@ -339,20 +352,8 @@ public class Worker {
         }
         String lastElement = getFunctionBody(input, start);
         if (lastElement.equals("error")) return new ArrayList<>();
-        list.add(lastElement);
+        list.add(lastElement.trim());
         return list;
-    }
-
-    private String getFunctionContent(String input) {
-        int a = input.indexOf("(");
-        int b = input.lastIndexOf(")");
-        return a == -1 || b == -1 ? input : input.substring(a + 1, b);
-    }
-
-    private String getCodeContent(String input) {
-        int a = input.indexOf("{");
-        int b = input.lastIndexOf("}");
-        return a == -1 || b == -1 ? input : input.substring(a + 1, b);
     }
 
 }
